@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laptop Price Predictor</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            font-family: 'Arial', sans-serif;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9); /* Lighter box color */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 2px 2px 12px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+        h1, h2 {
+            color: black;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group input[type="number"] {
+            width: 48%;
+            display: inline-block;
+            margin-right: 4%;
+        }
+        .form-group input[type="number"]:last-child {
+            margin-right: 0;
+        }
+        .form-group button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: #FF6347;
+            text-align: center;
+            margin-top: 20px;
+        }
+        /* Style for the side panel */
+        #sidePanel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background: rgba(139, 69, 19, 0.9); /* Translucent brown */
+            border-left: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: -2px 0 15px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.5s ease-in-out;
+            border-radius: 0 0 0 20px; /* Rounded corners on the left side */
+            color: white;
+            z-index: 1000; /* Ensure it appears above other content */
+        }
+        #sidePanel.open {
+            transform: translateX(0);
+        }
+        #sidePanel h2 {
+            margin-top: 0;
+            font-size: 26px;
+            color: #fff; /* White text color */
+            font-weight: bold; /* Make header bold */
+        }
+        #sidePanel p {
+            font-size: 24px; /* Slightly larger font size for result */
+            font-weight: bold; /* Make text bold */
+            color: #fff; /* White text color */
+            border: 2px solid #fff; /* Add border to result */
+            padding: 10px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.3); /* Slight dark background for text */
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #fff; /* White close button */
+            transition: color 0.3s ease;
+        }
+        .close-btn:hover {
+            color: #ff6347; /* Change color on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Laptop Price Predictor</h1>
+        <h2>Please select the following details:</h2>
+        <form action="/" method="post">
+            <div class="form-group">
+                <label for="company">Brand:</label>
+                <select id="company" name="company" required>
+                    {% for company in companies %}
+                    <option value="{{ company }}">{{ company }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="type">Type:</label>
+                <select id="type" name="type" required>
+                    {% for t in types %}
+                    <option value="{{ t }}">{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ram">RAM (in GB):</label>
+                <select id="ram" name="ram" required>
+                    <option value="2">2 GB</option>
+                    <option value="4">4 GB</option>
+                    <option value="6">6 GB</option>
+                    <option value="8">8 GB</option>
+                    <option value="12">12 GB</option>
+                    <option value="16">16 GB</option>
+                    <option value="24">24 GB</option>
+                    <option value="32">32 GB</option>
+                    <option value="64">64 GB</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="weight">Weight of the Laptop (in kg):</label>
+                <input type="number" id="weight" name="weight" step="0.01" required>
+            </div>
+            <div class="form-group">
+                <label for="touchscreen">Touchscreen:</label>
+                <select id="touchscreen" name="touchscreen" required>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ips">IPS:</label>
+                <select id="ips" name="ips" required>
+                    <option value="No">No</option>
+                    <option value="Yes">Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="screen_size">Screen Size (in inches):</label>
+                <input type="number" id="screen_size" name="screen_size" step="0.1" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="resolution">Screen Resolution:</label>
+                <select id="resolution" name="resolution" required>
+                    <option value="1920x1080">1920x1080</option>
+                    <option value="1366x768">1366x768</option>
+                    <option value="1600x900">1600x900</option>
+                    <option value="3840x2160">3840x2160</option>
+                    <option value="3200x1800">3200x1800</option>
+                    <option value="2880x1800">2880x1800</option>
+                    <option value="2560x1600">2560x1600</option>
+                    <option value="2560x1440">2560x1440</option>
+                    <option value="2304x1440">2304x1440</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cpu">CPU:</label>
+                <select id="cpu" name="cpu" required>
+                    {% for cpu_brand in cpu_brands %}
+                    <option value="{{ cpu_brand }}">{{ cpu_brand }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="hdd">HDD (in GB):</label>
+                <select id="hdd" name="hdd" required>
+                    <option value="0">0 GB</option>
+                    <option value="128">128 GB</option>
+                    <option value="256">256 GB</option>
+                    <option value="512">512 GB</option>
+                    <option value="1024">1024 GB</option>
+                    <option value="2048">2048 GB</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ssd">SSD (in GB):</label>
+                <select id="ssd" name="ssd" required>
+                    <option value="0">0 GB</option>
+                    <option value="8">8 GB</option>
+                    <option value="128">128 GB</option>
+                    <option value="256">256 GB</option>
+                    <option value="512">512 GB</option>
+                    <option value="1024">1024 GB</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="gpu">GPU:</label>
+                <select id="gpu" name="gpu" required>
+                    {% for gpu_brand in gpu_brands %}
+                    <option value="{{ gpu_brand }}">{{ gpu_brand }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="os">OS:</label>
+                <select id="os" name="os" required>
+                    {% for os in os_list %}
+                    <option value="{{ os }}">{{ os }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit">Predict Price</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Side Panel for Prediction -->
+    <div id="sidePanel">
+        <span class="close-btn" onclick="closePanel()">×</span>
+        <h2>Prediction Result</h2>
+        <p id="predictionResult">{{ prediction }}</p>
+    </div>
+
+    <script>
+        function openPanel() {
+            document.getElementById('sidePanel').classList.add('open');
+        }
+
+        function closePanel() {
+            document.getElementById('sidePanel').classList.remove('open');
+        }
+
+        // Show the side panel if there is a prediction result
+        {% if prediction %}
+        document.addEventListener('DOMContentLoaded', function() {
+            openPanel();
+        });
+        {% endif %}
+    </script>
+</body>
+</html>
